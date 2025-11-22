@@ -59,7 +59,7 @@ export class OpenRouterClient {
 
   constructor(options: OpenRouterClientOptions = {}) {
     this.apiKey = options.apiKey;
-    this.textModel = options.textModel ?? 'openrouter/openai/gpt-4o-mini';
+    this.textModel = options.textModel ?? 'allenai/olmo-3-32b-think';
     this.visionModel = options.visionModel ?? this.textModel;
     this.referer = options.referer;
     this.appTitle = options.appTitle;
