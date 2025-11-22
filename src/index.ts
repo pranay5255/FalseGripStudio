@@ -11,6 +11,7 @@ import puppeteer from 'puppeteer';
 
 import { OpenRouterClient } from './openrouter';
 import { summarizeRecentChat } from './chatSummary';
+import { generateScienceBrief } from './scienceBrief';
 
 const downloadsDir = path.resolve(process.env.DOWNLOADS_DIR ?? path.join(process.cwd(), 'downloads'));
 const initialNotificationJid = process.env.INITIAL_NOTIFICATION_JID ?? '919654807428@c.us';
@@ -140,8 +141,15 @@ client.on('remote_session_saved', () => {
 
 client.on('message', async (message) => {
   const incoming = (message.body ?? '').trim();
+  const normalized = incoming.toLowerCase();
 
-  if (incoming.toLowerCase().startsWith('!ask')) {
+  if (normalized.startsWith('!science')) {
+    const topic = incoming.slice('!science'.length).trim();
+    await handleScienceCommand(message, topic);
+    return;
+  }
+
+  if (normalized.startsWith('!ask')) {
     const prompt = incoming.slice(4).trim();
     await handleAskCommand(message, prompt);
     return;
@@ -172,6 +180,29 @@ async function handleAskCommand(message: Message, prompt: string): Promise<void>
     console.error('Failed to generate OpenRouter response:', error);
     await message.react('⚠️');
     await message.reply('I could not reach OpenRouter right now. Please try again soon.');
+  }
+}
+
+async function handleScienceCommand(message: Message, topic: string): Promise<void> {
+  if (!topic) {
+    await message.reply('Usage: !science <topic>');
+    return;
+  }
+
+  if (!openRouterClient.isEnabled()) {
+    await message.reply('OpenRouter API key missing. Set OPENROUTER_API_KEY to enable science briefs.');
+    return;
+  }
+
+  try {
+    await message.react('🧪');
+    const brief = await generateScienceBrief({ topic, openRouterClient });
+    await client.sendMessage(message.from, brief);
+    await message.react('✅');
+  } catch (error) {
+    console.error('Failed to generate science brief:', error);
+    await message.react('⚠️');
+    await message.reply('I could not generate a science brief right now. Please try again soon.');
   }
 }
 
