@@ -6,12 +6,14 @@ import path from 'node:path';
 
 import mime from 'mime-types';
 import qrcodeTerminal from 'qrcode-terminal';
-import { Client, LocalAuth, Message, MessageMedia } from 'whatsapp-web.js';
+import { Chat, Client, LocalAuth, Message, MessageMedia } from 'whatsapp-web.js';
 import puppeteer from 'puppeteer';
 
 import { OpenRouterClient } from './openrouter';
+import { summarizeRecentChat } from './chatSummary';
 
 const downloadsDir = path.resolve(process.env.DOWNLOADS_DIR ?? path.join(process.cwd(), 'downloads'));
+const initialNotificationJid = process.env.INITIAL_NOTIFICATION_JID ?? '919654807428@c.us';
 
 const openRouterClient = new OpenRouterClient({
   apiKey: process.env.OPENROUTER_API_KEY,
@@ -108,11 +110,18 @@ client.on('auth_failure', (message) => {
   console.error('💡 Try deleting .wwebjs_auth/ folder and scanning QR code again.');
 });
 
-client.on('ready', () => {
+client.on('ready', async () => {
   console.log('🤖 WhatsApp bot is ready and waiting for messages...');
   console.log('📊 Client info:', {
     info: client.info,
     wid: client.info?.wid,
+  });
+  await logTopChats();
+  await sendInitialMessages(initialNotificationJid, 2);
+  await summarizeRecentChat({
+    client,
+    openRouterClient,
+    jid: initialNotificationJid,
   });
 });
 
@@ -163,6 +172,52 @@ async function handleAskCommand(message: Message, prompt: string): Promise<void>
     console.error('Failed to generate OpenRouter response:', error);
     await message.react('⚠️');
     await message.reply('I could not reach OpenRouter right now. Please try again soon.');
+  }
+}
+
+async function logTopChats(limit = 10): Promise<void> {
+  try {
+    const chats = await client.getChats();
+    if (!chats.length) {
+      console.log('📭 No chats available yet.');
+      return;
+    }
+
+    const topChats = chats
+      .filter((chat): chat is Chat & { id: Chat['id'] } => Boolean(chat.id?._serialized))
+      .sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0))
+      .slice(0, limit);
+
+    console.log(`📇 Top ${topChats.length} chats by recent activity:`);
+    topChats.forEach((chat, index) => {
+      const jid = chat.id._serialized;
+      const label = chat.name ?? chat.id.user ?? jid;
+      const kind = chat.isGroup ? 'group' : 'chat';
+      console.log(`${index + 1}. [${kind}] ${label} (${jid})`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to fetch chats:', error);
+  }
+}
+
+async function sendInitialMessages(jid: string, count: number): Promise<void> {
+  if (!jid || count <= 0) {
+    return;
+  }
+
+  const prefix = 'FitBOT Initialised - Chat Summary module enabled';
+  const payloads = Array.from({ length: count }, (_, index) => {
+    const ordinal = index + 1;
+    return `${prefix}. Test message ${ordinal}.`;
+  });
+
+  for (const payload of payloads) {
+    try {
+      await client.sendMessage(jid, payload);
+      console.log(`📨 Sent initial message to ${jid}: "${payload}"`);
+    } catch (error) {
+      console.error(`❌ Failed to send initial message to ${jid}:`, error);
+    }
   }
 }
 
