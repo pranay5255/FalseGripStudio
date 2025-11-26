@@ -18,19 +18,93 @@ import {
   Utensils, 
   BrainCircuit, 
   Dumbbell, 
-  Save 
+  Save,
+  ArrowLeft,
+  Plus
 } from "lucide-react"
+import { Client, ClientCard } from "@/components/client-card"
+
+// Mock Data
+const MOCK_CLIENTS: Client[] = [
+  {
+    id: "1",
+    name: "Sarah Johnson",
+    status: "active",
+    lastActive: "2 hours ago",
+    program: "Weight Loss & Toning",
+    avatar: "https://i.pravatar.cc/150?u=sarah"
+  },
+  {
+    id: "2",
+    name: "Mike Chen",
+    status: "active",
+    lastActive: "5 mins ago",
+    program: "Hypertrophy Basics",
+    avatar: "https://i.pravatar.cc/150?u=mike"
+  },
+  {
+    id: "3",
+    name: "Emma Davis",
+    status: "pending",
+    lastActive: "1 day ago",
+    program: "Post-Injury Recovery",
+    avatar: "https://i.pravatar.cc/150?u=emma"
+  },
+  {
+    id: "4",
+    name: "James Wilson",
+    status: "inactive",
+    lastActive: "2 weeks ago",
+    program: "Marathon Prep",
+    avatar: "https://i.pravatar.cc/150?u=james"
+  }
+]
 
 export default function AgentDashboard() {
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [activeTab, setActiveTab] = useState("intake")
+
+  if (!selectedClient) {
+    return (
+      <div className="min-h-screen bg-slate-50 p-8">
+        <div className="max-w-6xl mx-auto space-y-8">
+          <header className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900">Client Management</h1>
+              <p className="text-slate-500">Select a client to configure their personal AI agent</p>
+            </div>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add New Client
+            </Button>
+          </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {MOCK_CLIENTS.map((client) => (
+              <ClientCard 
+                key={client.id} 
+                client={client} 
+                onSelect={setSelectedClient} 
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         <header className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Agent Configuration</h1>
-            <p className="text-slate-500">Manage settings for your AI fitness assistant</p>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => setSelectedClient(null)}>
+              <ArrowLeft className="h-6 w-6" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900">{selectedClient.name}</h1>
+              <p className="text-slate-500">Agent Configuration • {selectedClient.program}</p>
+            </div>
           </div>
           <Button>
             <Save className="mr-2 h-4 w-4" />
