@@ -1,0 +1,413 @@
+"use client"
+
+import { useState } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { 
+  ClipboardCheck, 
+  ShieldAlert, 
+  MessageSquare, 
+  SunMoon, 
+  Trophy, 
+  Utensils, 
+  BrainCircuit, 
+  Dumbbell, 
+  Save 
+} from "lucide-react"
+
+export default function AgentDashboard() {
+  const [activeTab, setActiveTab] = useState("intake")
+
+  return (
+    <div className="min-h-screen bg-slate-50 p-8">
+      <div className="max-w-6xl mx-auto space-y-8">
+        <header className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Agent Configuration</h1>
+            <p className="text-slate-500">Manage settings for your AI fitness assistant</p>
+          </div>
+          <Button>
+            <Save className="mr-2 h-4 w-4" />
+            Save Changes
+          </Button>
+        </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card className="md:col-span-1 h-fit">
+            <CardContent className="p-4">
+              <Tabs orientation="vertical" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="flex flex-col h-auto items-start bg-transparent space-y-2">
+                  <TabsTrigger value="intake" className="w-full justify-start px-4 py-2">
+                    <ClipboardCheck className="mr-2 h-4 w-4" />
+                    Intake & Onboarding
+                  </TabsTrigger>
+                  <TabsTrigger value="safety" className="w-full justify-start px-4 py-2">
+                    <ShieldAlert className="mr-2 h-4 w-4" />
+                    Safety Guardrails
+                  </TabsTrigger>
+                  <TabsTrigger value="chat" className="w-full justify-start px-4 py-2">
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    Chat & Persona
+                  </TabsTrigger>
+                  <TabsTrigger value="rituals" className="w-full justify-start px-4 py-2">
+                    <SunMoon className="mr-2 h-4 w-4" />
+                    Daily Rituals
+                  </TabsTrigger>
+                  <TabsTrigger value="habits" className="w-full justify-start px-4 py-2">
+                    <Trophy className="mr-2 h-4 w-4" />
+                    Habits & Streaks
+                  </TabsTrigger>
+                  <TabsTrigger value="nutrition" className="w-full justify-start px-4 py-2">
+                    <Utensils className="mr-2 h-4 w-4" />
+                    Nutrition
+                  </TabsTrigger>
+                  <TabsTrigger value="training" className="w-full justify-start px-4 py-2">
+                    <Dumbbell className="mr-2 h-4 w-4" />
+                    Training & Form
+                  </TabsTrigger>
+                  <TabsTrigger value="education" className="w-full justify-start px-4 py-2">
+                    <BrainCircuit className="mr-2 h-4 w-4" />
+                    Education & Science
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </CardContent>
+          </Card>
+
+          <div className="md:col-span-3">
+            <Tabs value={activeTab} className="w-full">
+              {/* 1. Deep Intake Interview */}
+              <TabsContent value="intake">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Deep Intake Interview</CardTitle>
+                    <CardDescription>Configure how the agent interviews new clients and gathers initial data.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="flex items-center justify-between space-x-2">
+                      <Label htmlFor="intake-enabled" className="flex flex-col space-y-1">
+                        <span>Enable Intake Interview</span>
+                        <span className="font-normal text-xs text-muted-foreground">Automatically start interview for new users</span>
+                      </Label>
+                      <Switch id="intake-enabled" defaultChecked />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Required Data Points</Label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex items-center space-x-2">
+                          <Switch id="req-goals" defaultChecked />
+                          <Label htmlFor="req-goals">Fitness Goals</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Switch id="req-injuries" defaultChecked />
+                          <Label htmlFor="req-injuries">Injury History</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Switch id="req-history" defaultChecked />
+                          <Label htmlFor="req-history">Training History</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Switch id="req-equip" defaultChecked />
+                          <Label htmlFor="req-equip">Available Equipment</Label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Custom Questions</Label>
+                      <Textarea placeholder="Add specific questions you want the agent to ask every new client..." />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* 2. Risk & Scope Guardrails */}
+              <TabsContent value="safety">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Risk & Scope Guardrails</CardTitle>
+                    <CardDescription>Set boundaries for when the agent should defer to medical professionals.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="flex items-center justify-between space-x-2">
+                      <Label htmlFor="strict-mode" className="flex flex-col space-y-1">
+                        <span>Strict Medical Guardrails</span>
+                        <span className="font-normal text-xs text-muted-foreground">Aggressively flag any medical keywords</span>
+                      </Label>
+                      <Switch id="strict-mode" defaultChecked />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Red Flag Keywords</Label>
+                      <Textarea defaultValue="chest pain, sharp pain, dizziness, fainting, broken bone, surgery, pregnant" />
+                      <p className="text-xs text-muted-foreground">Comma separated list of terms that trigger the medical disclaimer.</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Medical Disclaimer Message</Label>
+                      <Textarea defaultValue="I am an AI fitness assistant, not a doctor. Please consult with a healthcare professional regarding this symptom." />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* 3. 24x7 Trainer Clone */}
+              <TabsContent value="chat">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Trainer Clone Personality</CardTitle>
+                    <CardDescription>Customize the voice and tone of your AI clone.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Tone</Label>
+                        <Input defaultValue="Encouraging but firm" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Communication Style</Label>
+                        <Input defaultValue="Concise, uses emojis sparingly" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Fallback Templates</Label>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label className="text-xs">Equipment Unavailable</Label>
+                          <Textarea className="h-20" defaultValue="No worries! Let's swap that for a bodyweight alternative. Try doing..." />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Missed Workout</Label>
+                          <Textarea className="h-20" defaultValue="Life happens. Let's adjust the schedule. Can you do a shorter session tomorrow?" />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* 4. Morning & Evening Rituals */}
+              <TabsContent value="rituals">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Daily Rituals</CardTitle>
+                    <CardDescription>Configure automated morning and evening check-ins.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label>Morning Check-in</Label>
+                        <Switch defaultChecked />
+                      </div>
+                      <div className="pl-6 space-y-2">
+                        <Label className="text-xs">Time</Label>
+                        <Input type="time" defaultValue="07:00" className="w-32" />
+                        <Label className="text-xs">Metrics to Track</Label>
+                        <div className="grid grid-cols-3 gap-2 text-sm">
+                          <label className="flex items-center gap-2"><input type="checkbox" checked /> Sleep</label>
+                          <label className="flex items-center gap-2"><input type="checkbox" checked /> Soreness</label>
+                          <label className="flex items-center gap-2"><input type="checkbox" checked /> Mood</label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label>Evening Recap</Label>
+                        <Switch defaultChecked />
+                      </div>
+                      <div className="pl-6 space-y-2">
+                        <Label className="text-xs">Time</Label>
+                        <Input type="time" defaultValue="20:00" className="w-32" />
+                        <Label className="text-xs">Reflection Questions</Label>
+                        <Textarea defaultValue="What went well today? What was challenging?" className="h-20" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* 5. Habit & Streak Mechanics */}
+              <TabsContent value="habits">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Habits & Gamification</CardTitle>
+                    <CardDescription>Set up tracking for daily habits and streak logic.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                      <Label>Active Trackers</Label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex items-center justify-between border p-3 rounded-lg">
+                          <Label>Step Count</Label>
+                          <Switch defaultChecked />
+                        </div>
+                        <div className="flex items-center justify-between border p-3 rounded-lg">
+                          <Label>Hydration</Label>
+                          <Switch />
+                        </div>
+                        <div className="flex items-center justify-between border p-3 rounded-lg">
+                          <Label>Protein Target</Label>
+                          <Switch defaultChecked />
+                        </div>
+                        <div className="flex items-center justify-between border p-3 rounded-lg">
+                          <Label>Sleep Hours</Label>
+                          <Switch defaultChecked />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Nudge Frequency</Label>
+                      <select className="w-full h-10 rounded-md border border-slate-200 bg-white px-3 text-sm">
+                        <option>Low (Only when critical)</option>
+                        <option>Medium (Daily reminders)</option>
+                        <option>High (Multiple times a day)</option>
+                      </select>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* 4.3 Nutrition & Calorie Estimation */}
+              <TabsContent value="nutrition">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Nutrition & Analysis</CardTitle>
+                    <CardDescription>Configure food recognition and dietary counseling.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="flex items-center justify-between space-x-2">
+                      <Label htmlFor="photo-logging" className="flex flex-col space-y-1">
+                        <span>Photo Meal Logging</span>
+                        <span className="font-normal text-xs text-muted-foreground">Allow clients to log meals by sending photos</span>
+                      </Label>
+                      <Switch id="photo-logging" defaultChecked />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Tracking Philosophy</Label>
+                      <div className="grid grid-cols-1 gap-2">
+                        <div className="flex items-center space-x-2">
+                          <input type="radio" name="philosophy" id="macro" className="accent-slate-900" defaultChecked />
+                          <Label htmlFor="macro">Strict Macro Counting</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input type="radio" name="philosophy" id="hand" className="accent-slate-900" />
+                          <Label htmlFor="hand">Hand Portions / Estimations</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input type="radio" name="philosophy" id="intuitive" className="accent-slate-900" />
+                          <Label htmlFor="intuitive">Intuitive Eating / Adherence Only</Label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Feedback Style</Label>
+                      <Textarea defaultValue="Focus on protein intake first. Be gentle about occasional treats but firm on total daily calories." />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* 4.4 Training & Form Feedback */}
+              <TabsContent value="training">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Training & Form Analysis</CardTitle>
+                    <CardDescription>Manage workout generation and video analysis settings.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                      <Label>Program Generation Style</Label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-xs">Split Preference</Label>
+                          <Input defaultValue="Upper/Lower Split" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Progression Model</Label>
+                          <Input defaultValue="Linear Progression + RPE" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label>Video Form Analysis</Label>
+                        <Switch defaultChecked />
+                      </div>
+                      <div className="pl-6 space-y-2">
+                        <Label className="text-xs">Key Movements to Watch</Label>
+                        <Textarea defaultValue="Squat depth, Neutral spine in deadlift, Elbow flare in bench press" />
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label>Injury Auto-Adjustment</Label>
+                        <Switch defaultChecked />
+                      </div>
+                      <p className="text-xs text-muted-foreground">Automatically suggest regression exercises when pain is reported.</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* 4.5 Evidence-based & Education */}
+              <TabsContent value="education">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Education & Science</CardTitle>
+                    <CardDescription>Configure the knowledge base and educational content delivery.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="flex items-center justify-between space-x-2">
+                      <Label htmlFor="fact-check" className="flex flex-col space-y-1">
+                        <span>Auto-Fact Checking</span>
+                        <span className="font-normal text-xs text-muted-foreground">Debunk myths using trusted sources</span>
+                      </Label>
+                      <Switch id="fact-check" defaultChecked />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Trusted Sources</Label>
+                      <Textarea defaultValue="PubMed, Examine.com, ISSN Position Papers, Renaissance Periodization" />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Educational Drip Campaign</Label>
+                      <div className="border rounded-md p-4 space-y-2">
+                        <div className="flex justify-between items-center text-sm">
+                          <span>Week 1-2: Progressive Overload Basics</span>
+                          <Switch defaultChecked />
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span>Week 3-4: Nutrition & Macros 101</span>
+                          <Switch defaultChecked />
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span>Week 5+: Recovery & Sleep Hygiene</span>
+                          <Switch defaultChecked />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
