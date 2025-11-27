@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { 
   ClipboardCheck, 
   ShieldAlert, 
@@ -23,6 +22,7 @@ import {
   Plus
 } from "lucide-react"
 import { Client, ClientCard } from "@/components/client-card"
+import { Sidebar } from "@/components/sidebar"
 
 // Mock Data
 const MOCK_CLIENTS: Client[] = [
@@ -77,16 +77,110 @@ const MOCK_CLIENTS: Client[] = [
 ]
 
 export default function AgentDashboard() {
+  const [activeView, setActiveView] = useState("clients")
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [activeTab, setActiveTab] = useState("intake")
 
-  if (!selectedClient) {
-    return (
-      <div className="min-h-screen bg-slate-50 p-8">
+  const renderContent = () => {
+    if (activeView === "billing") {
+      return (
+        <div className="max-w-4xl mx-auto space-y-8">
+          <header>
+            <h1 className="text-3xl font-bold text-slate-900">Billing & Plans</h1>
+            <p className="text-slate-500">Manage your subscription and client billing</p>
+          </header>
+          <Card>
+            <CardHeader>
+              <CardTitle>Current Plan</CardTitle>
+              <CardDescription>You are on the Professional Plan</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-4 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Professional Plan</p>
+                    <p className="text-sm text-slate-500">$99/month</p>
+                  </div>
+                  <Button variant="outline">Manage Subscription</Button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 border rounded-lg">
+                    <p className="text-sm text-slate-500">Active Clients</p>
+                    <p className="text-2xl font-bold">12/20</p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <p className="text-sm text-slate-500">Next Billing Date</p>
+                    <p className="text-2xl font-bold">Dec 1, 2025</p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <p className="text-sm text-slate-500">Est. Revenue</p>
+                    <p className="text-2xl font-bold">$2,400</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
+
+    if (activeView === "support") {
+      return (
+        <div className="max-w-4xl mx-auto space-y-8">
+          <header>
+            <h1 className="text-3xl font-bold text-slate-900">Support</h1>
+            <p className="text-slate-500">Get help with your dashboard</p>
+          </header>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Support</CardTitle>
+                <CardDescription>Need help? Reach out to our team.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Subject</Label>
+                  <Input placeholder="What do you need help with?" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Message</Label>
+                  <Textarea placeholder="Describe your issue..." className="h-32" />
+                </div>
+                <Button className="w-full">Send Message</Button>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Documentation</CardTitle>
+                <CardDescription>Learn how to use the platform.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button variant="outline" className="w-full justify-start">
+                  Getting Started Guide
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  Configuring AI Agents
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  Managing Client Billing
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  API Documentation
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )
+    }
+
+    // Client Management View
+    if (!selectedClient) {
+      return (
         <div className="max-w-6xl mx-auto space-y-8">
           <header className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">FalseGrip Studio Dashboard</h1>
+              <h1 className="text-3xl font-bold text-slate-900">Client Management</h1>
               <p className="text-slate-500">Manage client programs and AI configurations</p>
             </div>
             <Button>
@@ -105,12 +199,10 @@ export default function AgentDashboard() {
             ))}
           </div>
         </div>
-      </div>
-    )
-  }
+      )
+    }
 
-  return (
-    <div className="min-h-screen bg-slate-50 p-8">
+    return (
       <div className="max-w-6xl mx-auto space-y-8">
         <header className="flex justify-between items-center">
           <div className="flex items-center gap-4">
@@ -498,6 +590,18 @@ export default function AgentDashboard() {
           </div>
         </div>
       </div>
+    )
+  }
+
+  return (
+    <div className="flex min-h-screen bg-slate-50">
+      <Sidebar activeView={activeView} onViewChange={(view) => {
+        setActiveView(view)
+        setSelectedClient(null)
+      }} />
+      <main className="flex-1 ml-64 p-8">
+        {renderContent()}
+      </main>
     </div>
   )
 }
