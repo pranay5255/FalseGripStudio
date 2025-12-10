@@ -48,6 +48,18 @@ export interface OpenRouterClientOptions {
   appTitle?: string;
 }
 
+export interface DescribeImageParams {
+  base64Data?: string;
+  mimeType?: string;
+  imagePath?: string;
+  imageUrl?: string;
+  instruction?: string;
+  system?: string;
+  temperature?: number;
+  maxTokens?: number;
+  model?: string;
+}
+
 export class OpenRouterClient {
   private readonly apiKey?: string;
 
@@ -86,44 +98,49 @@ export class OpenRouterClient {
     });
   }
 
-  public async describeImage(params: { base64Data?: string; mimeType?: string; imagePath?: string; instruction?: string; system?: string; temperature?: number; maxTokens?: number }): Promise<string> {
+  public async describeImage(params: DescribeImageParams): Promise<string> {
     if (!this.visionModel) {
       throw new Error('OpenRouter vision model is not configured.');
     }
 
-    let { base64Data, mimeType } = params;
-    const { imagePath, instruction, system, temperature, maxTokens } = params;
+    const { instruction, system, temperature, maxTokens, model } = params;
+    const imagePart = await this.resolveImagePart(params);
+    const systemMessage = system ?? 'You are a helpful multimodal WhatsApp assistant.';
+    const userInstruction =
+      instruction ?? 'Describe the contents of this WhatsApp image in one or two concise sentences.';
 
-    if (imagePath) {
-      const buffer = await readFile(imagePath);
-      base64Data = buffer.toString('base64');
-      const lookedUp = mime.lookup(imagePath);
-      mimeType = typeof lookedUp === 'string' ? lookedUp : mimeType ?? 'image/jpeg';
+    if (imagePart) {
+      const messages: ChatMessage[] = [];
+      if (systemMessage) {
+        messages.push({ role: 'system', content: systemMessage });
+      }
+      messages.push({
+        role: 'user',
+        content: [
+          { type: 'input_text', text: userInstruction },
+          imagePart
+        ]
+      });
+
+      return this.requestCompletion({
+        model: model ?? this.visionModel,
+        temperature: typeof temperature === 'number' ? temperature : 0.2,
+        max_tokens: typeof maxTokens === 'number' ? maxTokens : 300,
+        messages
+      });
     }
 
-    if (!base64Data || !mimeType) {
-      throw new Error('Image data and mimeType are required to describe an image.');
+    const textOnlyMessages: ChatMessage[] = [];
+    if (systemMessage) {
+      textOnlyMessages.push({ role: 'system', content: systemMessage });
     }
-
-    const imageUrl = `data:${mimeType};base64,${base64Data}`;
-
-    const messages: ChatMessage[] = [];
-    if (system) {
-      messages.push({ role: 'system', content: system });
-    }
-    messages.push({
-      role: 'user',
-      content: [
-        { type: 'input_text', text: instruction ?? 'Describe the contents of this WhatsApp image in one or two concise sentences.' },
-        { type: 'input_image', image_url: { url: imageUrl } }
-      ]
-    });
+    textOnlyMessages.push({ role: 'user', content: userInstruction });
 
     return this.requestCompletion({
-      model: this.visionModel,
+      model: model ?? this.textModel,
       temperature: typeof temperature === 'number' ? temperature : 0.2,
       max_tokens: typeof maxTokens === 'number' ? maxTokens : 300,
-      messages
+      messages: textOnlyMessages
     });
   }
 
@@ -205,5 +222,29 @@ export class OpenRouterClient {
     }
 
     return '';
+  }
+
+  private async resolveImagePart(params: DescribeImageParams): Promise<ImagePart | undefined> {
+    const { imageUrl, imagePath } = params;
+    let { base64Data, mimeType } = params;
+
+    if (imageUrl) {
+      return { type: 'input_image', image_url: { url: imageUrl } };
+    }
+
+    if (imagePath) {
+      const buffer = await readFile(imagePath);
+      base64Data = buffer.toString('base64');
+      const lookedUp = mime.lookup(imagePath);
+      mimeType = typeof lookedUp === 'string' ? lookedUp : mimeType ?? 'image/jpeg';
+    }
+
+    if (!base64Data) {
+      return undefined;
+    }
+
+    const resolvedMime = mimeType ?? 'image/jpeg';
+    const dataUrl = `data:${resolvedMime};base64,${base64Data}`;
+    return { type: 'input_image', image_url: { url: dataUrl } };
   }
 }
