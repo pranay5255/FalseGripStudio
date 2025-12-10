@@ -13,6 +13,7 @@ import { OpenRouterClient } from './openrouter';
 import { summarizeRecentChat } from './chatSummary';
 import { generateScienceBrief } from './scienceBrief';
 import { estimatePlateCalories, renderCalorieEstimate } from './plateCalorieEstimator';
+import { generateQnAResponse } from './qnaTemplate';
 
 const downloadsDir = path.resolve(process.env.DOWNLOADS_DIR ?? path.join(process.cwd(), 'downloads'));
 const dataDir = path.resolve(process.env.DATA_DIR ?? path.join(process.cwd(), 'data'));
@@ -121,11 +122,6 @@ client.on('ready', async () => {
   });
   await logTopChats();
   await sendInitialMessages(initialNotificationJid, 2);
-  await summarizeRecentChat({
-    client,
-    openRouterClient,
-    jid: initialNotificationJid,
-  });
 });
 
 client.on('disconnected', (reason) => {
@@ -156,8 +152,13 @@ client.on('message', async (message) => {
     return;
   }
 
+  if (normalized.startsWith('!summary')) {
+    await handleSummaryCommand(message);
+    return;
+  }
+
   if (normalized.startsWith('!ask')) {
-    const prompt = incoming.slice(4).trim();
+    const prompt = incoming.slice('!ask'.length).trim();
     await handleAskCommand(message, prompt);
     return;
   }
@@ -169,7 +170,7 @@ client.on('message', async (message) => {
 
 async function handleAskCommand(message: Message, prompt: string): Promise<void> {
   if (!prompt) {
-    await message.reply('Usage: !ask <your prompt>');
+    await message.reply('Usage: !ask <your question>');
     return;
   }
 
@@ -180,13 +181,37 @@ async function handleAskCommand(message: Message, prompt: string): Promise<void>
 
   try {
     await message.react('⏳');
-    const response = await openRouterClient.generateText(prompt);
+    const response = await generateQnAResponse({
+      question: prompt,
+      openRouterClient,
+    });
     await client.sendMessage(message.from, response);
     await message.react('✅');
   } catch (error) {
-    console.error('Failed to generate OpenRouter response:', error);
+    console.error('Failed to generate QnA response:', error);
     await message.react('⚠️');
-    await message.reply('I could not reach OpenRouter right now. Please try again soon.');
+    await message.reply('I could not answer your question right now. Please try again soon.');
+  }
+}
+
+async function handleSummaryCommand(message: Message): Promise<void> {
+  if (!openRouterClient.isEnabled()) {
+    await message.reply('OpenRouter API key missing. Set OPENROUTER_API_KEY to enable chat summaries.');
+    return;
+  }
+
+  try {
+    await message.react('📝');
+    await summarizeRecentChat({
+      client,
+      openRouterClient,
+      jid: message.from,
+    });
+    await message.react('✅');
+  } catch (error) {
+    console.error('Failed to generate chat summary:', error);
+    await message.react('⚠️');
+    await message.reply('I could not summarize the chat right now. Please try again soon.');
   }
 }
 
