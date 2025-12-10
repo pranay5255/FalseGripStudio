@@ -5,7 +5,11 @@
  * including prompt building, parsing, and rendering without requiring image inputs.
  */
 
+import 'dotenv/config';
 import { buildCaloriePrompt, renderCalorieEstimate, CalorieEstimate } from './src/plateCalorieEstimator';
+import { OpenRouterClient } from './src/openrouter';
+import { generateQnAResponse } from './src/qnaTemplate';
+import { generateScienceBrief } from './src/scienceBrief';
 
 /**
  * Local implementation of tryParseEstimate for testing purposes
@@ -254,6 +258,68 @@ async function testPerformance() {
 }
 
 /**
+ * Test 6: User QnA/Science Questions
+ */
+async function testUserQuestions() {
+  console.log('=== Test 6: User QnA/Science Questions ===');
+
+  const openRouterClient = new OpenRouterClient({
+    apiKey: process.env.OPENROUTER_API_KEY,
+    textModel: process.env.OPENROUTER_TEXT_MODEL,
+    visionModel: process.env.OPENROUTER_VISION_MODEL,
+    referer: process.env.OPENROUTER_REFERER,
+    appTitle: process.env.OPENROUTER_APP_TITLE ?? 'WhatsApp Demo Bot'
+  });
+
+  if (!openRouterClient.isEnabled()) {
+    console.log('OpenRouter client not enabled - skipping text generation tests');
+    return;
+  }
+
+  const questions = [
+    { type: 'qna', content: 'I am heading to the gym. Give me a nice back and biceps workout. Give me the exercises along with the sets and reps. You can include machines, barbelsl and dumbbells. Do not include bodyweight workouts.' },
+    { type: 'qna', content: 'I need a protein supplement for my mother. She is a pure vegetarian, and does not consume enough protein. She is lactose intolerant so she cannot consume milk products, and she cannot consume pulses like chickpeas, kidney beans or black eyed peas as well. Basically, she gets almost no protein.\n\nNow she has started doing pilates, and i can see her getting skinny fat. Should she alter her diet to include more protein? Keep in mind, she cannot consume a lot of food. Or should she take a protein supplement? And if so, which supplement would you recommend?' },
+    { type: 'qna', content: 'I have high calf inserts, so even though my calves are shredded and super strong and I have great athleticism, they always look skinny. Is there any way to increase the size of my calves so it becomes a little bulkier, like any type of exercise or program that could help me achieve size?' },
+    { type: 'qna', content: 'How to release my triceps without any equipment?' },
+    { type: 'qna', content: 'Which Youtuber to follow for workouts and fitness related info?' },
+    { type: 'qna', content: 'I don\'t like the fact that my trainer trains me in the same way he trains guys. He completely ignores my limitations as a girl, such as period cramps, limited strength, more fat storage. I feel Indian trainers are not sensitized towards women when it comes to training. What should I do?' },
+    { type: 'qna', content: 'I am currently 103 kgs, and my height is 179 cm. I am very overweight. How do I lose weight considering I do not exercise and I have a desk job where I work for 9-12 hours a day?' },
+    { type: 'qna', content: 'I am going to Italy for 2 weeks. How can I maintain my muscle mass and bodyweight there, when all I will be eating is pizza, pasta, croissant, gelato and tiramisu? How can I not put on weight when I\'ll be eating junk food for 2 straight weeks?' },
+    { type: 'science', topic: 'Muscle Tightness Mechanisms', content: 'Why do muscles get tight so fast and so easily?' },
+    { type: 'science', topic: 'Visible vs Functional Abs', content: 'What is the difference between visible abs and functional abs? how do I test which one of the two I have?' }
+  ];
+
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+    console.log(`\n--- Question ${i + 1} (${q.type.toUpperCase()}) ---`);
+    console.log(`Input: ${q.content}`);
+    
+    try {
+      let result = '';
+      if (q.type === 'qna') {
+        result = await generateQnAResponse({
+          question: q.content,
+          openRouterClient
+        });
+      } else if (q.type === 'science') {
+         // Using the topic if provided, otherwise the content
+         const topic = (q as any).topic || q.content;
+         console.log(`Topic: ${topic}`);
+         result = await generateScienceBrief({
+           topic: topic,
+           openRouterClient
+         });
+      }
+      console.log(`Response:\n${result}`);
+    } catch (error) {
+      console.error(`Error processing question ${i + 1}:`, error);
+    }
+    // Small delay to avoid rate limits if any
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+}
+
+/**
  * Run All Text-Based Tests
  */
 async function runAllTextTests() {
@@ -265,6 +331,7 @@ async function runAllTextTests() {
   await testRenderCalorieEstimate();
   await testEdgeCases();
   await testPerformance();
+  await testUserQuestions();
 
   console.log('\nAll text-based manual tests completed!');
   console.log('For image-based testing, please use manual-tests-image.ts');
