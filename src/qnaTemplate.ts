@@ -1,4 +1,5 @@
 import { OpenRouterClient } from './openrouter';
+import { QNA_PROMPT_TEMPLATE, QNA_SYSTEM_PROMPT } from './modulePrompt';
 
 /**
  * QnA Template for Short, Direct Answers
@@ -12,22 +13,6 @@ export interface QnAPromptParams {
   question: string;
   context?: string;
 }
-
-export const QNA_SYSTEM_PROMPT =
-  'You are a concise WhatsApp assistant. Answer questions directly in 2-4 sentences. Be helpful, accurate, and brief. Avoid lengthy explanations unless specifically asked.';
-
-const QNA_PROMPT_TEMPLATE = `
-Answer this question concisely and directly:
-
-**Question:** {{QUESTION}}
-{{CONTEXT_SECTION}}
-Requirements:
-- Respond in 2-4 sentences maximum
-- Be factual and helpful
-- Use simple, clear language suitable for WhatsApp
-- If uncertain, briefly acknowledge it
-- No markdown headers or bullet lists unless essential
-`;
 
 export const buildQnAPrompt = ({ question, context }: QnAPromptParams): string => {
   const trimmedQuestion = question.trim();
