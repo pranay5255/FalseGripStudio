@@ -1,4 +1,5 @@
 import { OpenRouterClient } from './openrouter';
+import { SCIENCE_PROMPT_TEMPLATE, SCIENCE_SYSTEM_PROMPT } from './modulePrompt';
 
 /**
  * Evidence-Based FAQ / Myth Buster plan
@@ -15,28 +16,6 @@ import { OpenRouterClient } from './openrouter';
 export interface ScienceBriefPromptParams {
   topic: string;
 }
-
-export const SCIENCE_SYSTEM_PROMPT =
-  'Summarize consensus of high-quality evidence (RCTs, meta-analyses). Avoid absolute claims. No magic hacks.';
-
-const SCIENCE_PROMPT_TEMPLATE = `
-You are preparing a short science brief about **{{TOPIC}}**.
-
-Requirements:
-- Cite only high-quality evidence (RCTs, meta-analyses, umbrella reviews).
-- Use neutral language, highlight consensus first, then unknowns.
-- Output must use markdown with EXACTLY these sections and bullet counts.
-
-Format:
-## Evidence
-- 2-3 concise bullets that summarize what studies show.
-
-## Uncertainties
-- 1-2 bullets on what remains unclear, conflicting, or under-studied.
-
-## Practical Takeaways
-- 3 numbered bullets with pragmatic guidance grounded in the evidence.
-`;
 
 export const buildScienceBriefPrompt = ({ topic }: ScienceBriefPromptParams): string => {
   const trimmedTopic = topic.trim();
