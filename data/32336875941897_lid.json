@@ -1,0 +1,17 @@
+{
+  "meals": [
+    {
+      "ts": 1765972378469,
+      "caption": "can you tell me what is the nutrient profile for my meal",
+      "estimate": {
+        "kcal_low": 700,
+        "kcal_high": 1000,
+        "protein_g": 0,
+        "carbs_g": 0,
+        "fat_g": 0,
+        "notes": ""
+      },
+      "imagePath": "/home/pranay5255/Documents/whatsappDemo/downloads/false_32336875941897_lid_ACCFD94A87CD9B18F692AA91988E1BE9-2025-12-17T11-52-46-000Z.jpg"
+    }
+  ]
+}
