@@ -1,12 +1,11 @@
 
-import { 
-  Users, 
-  CreditCard, 
-  LifeBuoy, 
+import {
+  Users,
+  CreditCard,
+  LifeBuoy,
   Settings,
-  Dumbbell
+  Dumbbell,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
 
 interface SidebarProps {
   activeView: string;
@@ -19,46 +18,54 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
     { id: "billing", label: "Billing & Plans", icon: CreditCard },
     { id: "support", label: "Support", icon: LifeBuoy },
   ]
+  const baseItemClasses =
+    "flex w-full items-center justify-start gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/70"
 
   return (
-    <div className="w-64 bg-slate-900 text-slate-100 flex flex-col h-screen fixed left-0 top-0">
-      <div className="p-6 flex items-center gap-3 border-b border-slate-800">
-        <div className="bg-primary/20 p-2 rounded-lg">
-          <Dumbbell className="h-6 w-6 text-primary" />
+    <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-slate-800 bg-slate-950 text-slate-100">
+      <div className="flex items-center gap-3 border-b border-slate-800 px-6 py-5">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800/80 ring-1 ring-slate-700">
+          <Dumbbell className="h-5 w-5 text-slate-100" />
         </div>
-        <div>
-          <h2 className="font-bold text-lg">FalseGrip</h2>
+        <div className="leading-tight">
+          <h2 className="text-lg font-semibold">FalseGrip</h2>
           <p className="text-xs text-slate-400">Trainer Dashboard</p>
         </div>
       </div>
       
-      <nav className="flex-1 p-4 space-y-2">
-        {menuItems.map((item) => (
-          <Button
-            key={item.id}
-            variant={activeView === item.id ? "secondary" : "ghost"}
-            className={`w-full justify-start gap-3 ${
-              activeView === item.id 
-                ? "bg-slate-800 text-white hover:bg-slate-700" 
-                : "text-slate-400 hover:text-white hover:bg-slate-800"
-            }`}
-            onClick={() => onViewChange(item.id)}
-          >
-            <item.icon className="h-5 w-5" />
-            {item.label}
-          </Button>
-        ))}
+      <nav className="flex-1 px-4 py-4">
+        <div className="space-y-1">
+          {menuItems.map((item) => {
+            const isActive = activeView === item.id
+            return (
+              <button
+                key={item.id}
+                type="button"
+                aria-current={isActive ? "page" : undefined}
+                className={`${baseItemClasses} ${
+                  isActive
+                    ? "bg-slate-800 text-white shadow-sm"
+                    : "text-slate-400 hover:bg-slate-800/70 hover:text-white"
+                }`}
+                onClick={() => onViewChange(item.id)}
+              >
+                <item.icon className="h-5 w-5" />
+                <span className="flex-1">{item.label}</span>
+              </button>
+            )
+          })}
+        </div>
       </nav>
 
-      <div className="p-4 border-t border-slate-800">
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-3 text-slate-400 hover:text-white hover:bg-slate-800"
+      <div className="border-t border-slate-800 px-4 py-4">
+        <button
+          type="button"
+          className={`${baseItemClasses} text-slate-400 hover:bg-slate-800/70 hover:text-white`}
         >
           <Settings className="h-5 w-5" />
-          Settings
-        </Button>
+          <span className="flex-1">Settings</span>
+        </button>
       </div>
-    </div>
+    </aside>
   )
 }
