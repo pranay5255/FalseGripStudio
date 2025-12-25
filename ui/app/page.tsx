@@ -80,6 +80,8 @@ export default function AgentDashboard() {
   const [activeView, setActiveView] = useState("clients")
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [activeTab, setActiveTab] = useState("intake")
+  const tabTriggerClasses =
+    "w-full items-start justify-start gap-3 rounded-md px-3 py-2.5 text-left text-slate-600 leading-snug hover:bg-slate-50 hover:text-slate-900 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 whitespace-normal"
 
   const renderContent = () => {
     if (activeView === "billing") {
@@ -226,62 +228,62 @@ export default function AgentDashboard() {
           onValueChange={setActiveTab}
           className="w-full"
         >
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card className="md:col-span-1 h-fit">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-[240px_minmax(0,1fr)]">
+            <Card className="h-fit">
               <CardContent className="p-4">
-                <TabsList className="w-full flex flex-col gap-1 bg-transparent p-0">
+                <TabsList className="flex h-auto w-full flex-col items-stretch justify-start gap-1 bg-transparent p-0">
                   <TabsTrigger
                     value="intake"
-                    className="w-full justify-start gap-3 rounded-md px-3 py-2.5 text-left text-slate-600 hover:bg-slate-50 hover:text-slate-900 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900"
+                    className={tabTriggerClasses}
                   >
                     <ClipboardCheck className="h-4 w-4" />
                     Intake & Onboarding
                   </TabsTrigger>
                   <TabsTrigger
                     value="safety"
-                    className="w-full justify-start gap-3 rounded-md px-3 py-2.5 text-left text-slate-600 hover:bg-slate-50 hover:text-slate-900 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900"
+                    className={tabTriggerClasses}
                   >
                     <ShieldAlert className="h-4 w-4" />
                     Safety Guardrails
                   </TabsTrigger>
                   <TabsTrigger
                     value="chat"
-                    className="w-full justify-start gap-3 rounded-md px-3 py-2.5 text-left text-slate-600 hover:bg-slate-50 hover:text-slate-900 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900"
+                    className={tabTriggerClasses}
                   >
                     <MessageSquare className="h-4 w-4" />
                     Chat & Persona
                   </TabsTrigger>
                   <TabsTrigger
                     value="rituals"
-                    className="w-full justify-start gap-3 rounded-md px-3 py-2.5 text-left text-slate-600 hover:bg-slate-50 hover:text-slate-900 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900"
+                    className={tabTriggerClasses}
                   >
                     <SunMoon className="h-4 w-4" />
                     Daily Rituals
                   </TabsTrigger>
                   <TabsTrigger
                     value="habits"
-                    className="w-full justify-start gap-3 rounded-md px-3 py-2.5 text-left text-slate-600 hover:bg-slate-50 hover:text-slate-900 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900"
+                    className={tabTriggerClasses}
                   >
                     <Trophy className="h-4 w-4" />
                     Habits & Streaks
                   </TabsTrigger>
                   <TabsTrigger
                     value="nutrition"
-                    className="w-full justify-start gap-3 rounded-md px-3 py-2.5 text-left text-slate-600 hover:bg-slate-50 hover:text-slate-900 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900"
+                    className={tabTriggerClasses}
                   >
                     <Utensils className="h-4 w-4" />
                     Nutrition
                   </TabsTrigger>
                   <TabsTrigger
                     value="training"
-                    className="w-full justify-start gap-3 rounded-md px-3 py-2.5 text-left text-slate-600 hover:bg-slate-50 hover:text-slate-900 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900"
+                    className={tabTriggerClasses}
                   >
                     <Dumbbell className="h-4 w-4" />
                     Training & Form
                   </TabsTrigger>
                   <TabsTrigger
                     value="education"
-                    className="w-full justify-start gap-3 rounded-md px-3 py-2.5 text-left text-slate-600 hover:bg-slate-50 hover:text-slate-900 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900"
+                    className={tabTriggerClasses}
                   >
                     <BrainCircuit className="h-4 w-4" />
                     Education & Science
@@ -290,7 +292,7 @@ export default function AgentDashboard() {
               </CardContent>
             </Card>
 
-            <div className="md:col-span-3">
+            <div className="min-w-0">
               {/* 1. Deep Intake Interview */}
               <TabsContent value="intake" className="mt-0">
                 <Card>
@@ -626,7 +628,7 @@ export default function AgentDashboard() {
         setActiveView(view)
         setSelectedClient(null)
       }} />
-      <main className="flex-1 ml-64 p-8">
+      <main className="min-w-0 flex-1 p-8">
         {renderContent()}
       </main>
     </div>

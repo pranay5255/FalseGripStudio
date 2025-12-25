@@ -35,8 +35,11 @@ export function ClientCard({ client, onSelect }: ClientCardProps) {
   const COLORS = ['#10b981', '#e2e8f0']; // emerald-500 for health, slate-200 for remaining
 
   return (
-    <Card className="hover:shadow-md transition-shadow cursor-pointer overflow-hidden" onClick={() => onSelect(client)}>
-      <CardHeader className="flex flex-row items-center gap-4 pb-2 relative">
+    <Card
+      className="flex h-full flex-col cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
+      onClick={() => onSelect(client)}
+    >
+      <CardHeader className="relative flex flex-row items-center gap-4 pb-3 pr-20">
         <div className="absolute top-4 right-4 h-16 w-16">
            <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -77,7 +80,7 @@ export function ClientCard({ client, onSelect }: ClientCardProps) {
         </div>
       </CardHeader>
       
-      <CardContent className="pb-4 pt-2">
+      <CardContent className="flex-1 pb-4 pt-2">
         <div className="grid grid-cols-3 gap-2 text-xs mb-4">
             <div className="bg-slate-50 p-2 rounded-md flex flex-col items-center justify-center text-center">
                 <div className="flex items-center gap-1 text-slate-500 mb-1">
@@ -115,7 +118,7 @@ export function ClientCard({ client, onSelect }: ClientCardProps) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="pt-0 pb-3 px-4">
+      <CardFooter className="px-6 pb-4 pt-0">
         <Button variant="ghost" className="w-full justify-between h-8 text-xs hover:bg-slate-100" size="sm">
           Manage Configuration
           <ArrowRight className="h-3 w-3" />
